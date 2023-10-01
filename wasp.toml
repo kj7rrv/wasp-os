@@ -3,47 +3,27 @@
 
 [[app]]
 file = 'apps/bible.py'
-auto_load = true
 
 [[app]]
 file = 'apps/stopwatch.py'
-auto_load = true
 
 [[app]]
 file = 'apps/heart.py'
-quick_ring = true
 
 [[app]]
 file = 'apps/alarm.py'
-auto_load = true
 
 [[app]]
 file = 'apps/timer.py'
-auto_load = true
 
 [[app]]
 file = 'apps/calculator.py'
-quick_ring = true
-
-#[[app]]
-#file = 'apps/disa_b_l_e.py'
 
 [[app]]
 file = 'apps/play2048.py'
-auto_load = true
-
-#[[app]]
-#file = 'apps/phone_finder.py'
-#auto_load = true
-
-#[[app]] # If only one watch face is included this app can be removed
-#file = 'apps/faces.py'
-#auto_load = true
-#no_except = true
 
 [[app]]
 file = 'apps/month.py'
-quick_ring = true
 
 [[watchface]]
 file = 'watch_faces/clock.py'
@@ -51,6 +31,3 @@ file = 'watch_faces/clock.py'
 [[watchface]] # Requires ClockApp to also be installed
 file = 'watch_faces/week_clock.py'
 default = true
-
-#[[watchface]]
-#file = 'watch_faces/chrono.py'
