@@ -40,11 +40,15 @@ class BibleApp():
     NAME = 'Bible'
 
     def __init__(self):
-        self.file = open("bible.txt", "r")
+        try:
+            self.file = open("bible.txt", "r")
 
-        index_line = self.file.readline()
-        self.index = json.loads(index_line)
-        self.offset = len(index_line)
+            index_line = self.file.readline()
+            self.index = json.loads(index_line)
+            self.offset = len(index_line)
+            self.ready = True
+        except FileNotFoundError:
+            self.ready = False
 
     @property
     def books(self):
@@ -60,12 +64,7 @@ class BibleApp():
         draw = wasp.watch.drawable
         draw.fill()
 
-        try:
-            self.bible = Bible("bible.txt")
-        except FileNotFoundError:
-            draw.string("No Bible found!", 0, 108, width=240)
-
-        draw.string("Ready!", 0, 108, width=240)
+        draw.string("Ready" if self.ready else "Error", 0, 108, width=240)
 
         wasp.system.request_event(wasp.EventMask.TOUCH |
                                   wasp.EventMask.SWIPE_LEFTRIGHT |
