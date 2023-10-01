@@ -36,10 +36,11 @@ _FONT = fonts.sans24
 _LINEH = const(30) # int(_FONTH * 1.25)
 _MAXLINES = const(7) # floor(_HEIGHT / _LINEH) - 1 # the "-1" is the input line
 
-class Bible:
-    def __init__(self, file_name):
-        self.file_name = file_name
-        self.file = open(file_name, "r")
+class BibleApp():
+    NAME = 'Bible'
+
+    def __init__(self):
+        self.file = open("bible.txt", "r")
 
         index_line = self.file.readline()
         self.index = json.loads(index_line)
@@ -54,13 +55,6 @@ class Bible:
         location = raw_location + self.offset
         self.file.seek(location)
         return self.file.read(length)
-
-
-class MorseApp():
-    NAME = 'Bible'
-
-    def __init__(self):
-        pass
 
     def foreground(self):
         draw = wasp.watch.drawable
@@ -138,24 +132,3 @@ class MorseApp():
         guess = self._lookup(self.letter)
         draw.string("{} {}".format(self.letter, guess), 0, _HEIGHT - _FONTH, width=_WIDTH)
 
-    def _lookup(self, s):
-        i = 0 # start of the subtree (current node)
-        l = len(_CODE) # length of the subtree
-
-        for c in s:
-            # first discard the head, which represent the previous guess
-            i += 1
-            l -= 1
-
-            # Check if we can no longer bisect while there are still dots/lines
-            if l <= 0: return "?"
-
-            # Update the bounds to the appropriate subtree
-            # (left or right of the tail).
-            # The length will always be half:
-            l //= 2
-            # The index will be either at the beginning of the tail,
-            # or at its half, in which case we subtract the current length,
-            # which is half of the old length:
-            if c == "-": i += l
-        return _CODE[i]
