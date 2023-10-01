@@ -47,7 +47,7 @@ class BibleApp():
             self.index = json.loads(index_line)
             self.offset = len(index_line)
             self.ready = True
-        except FileNotFoundError:
+        except OSError:
             self.ready = False
 
     @property
