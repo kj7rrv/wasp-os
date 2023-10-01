@@ -37,6 +37,10 @@ file = 'apps/faces.py'
 auto_load = true
 no_except = true
 
+[[app]]
+file = 'apps/month.py'
+quick_ring = true
+
 [[watchface]]
 file = 'watch_faces/clock.py'
 
