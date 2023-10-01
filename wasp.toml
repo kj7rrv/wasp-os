@@ -25,21 +25,21 @@ auto_load = true
 file = 'apps/calculator.py'
 quick_ring = true
 
-[[app]]
-file = 'apps/disa_b_l_e.py'
+#[[app]]
+#file = 'apps/disa_b_l_e.py'
 
 [[app]]
 file = 'apps/play2048.py'
 auto_load = true
 
-[[app]]
-file = 'apps/phone_finder.py'
-auto_load = true
+#[[app]]
+#file = 'apps/phone_finder.py'
+#auto_load = true
 
-[[app]] # If only one watch face is included this app can be removed
-file = 'apps/faces.py'
-auto_load = true
-no_except = true
+#[[app]] # If only one watch face is included this app can be removed
+#file = 'apps/faces.py'
+#auto_load = true
+#no_except = true
 
 [[app]]
 file = 'apps/month.py'
@@ -52,5 +52,5 @@ file = 'watch_faces/clock.py'
 file = 'watch_faces/week_clock.py'
 default = true
 
-[[watchface]]
-file = 'watch_faces/chrono.py'
+#[[watchface]]
+#file = 'watch_faces/chrono.py'
