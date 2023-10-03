@@ -45,8 +45,11 @@ class BibleApp:
         self.index = []
 
         with open("/flash/bible/KJV/index.txt") as index_file:
-            for line in index_file.readlines():
-                file_name = line.strip()
+            while True:
+                file_name = index_file.readline().strip()
+
+                if not file_name:
+                    break
 
                 try:
                     open("/flash/bible/KJV/" + file_name).close()
@@ -96,72 +99,4 @@ class BibleApp:
             wasp.EventMask.TOUCH
             | wasp.EventMask.SWIPE_LEFTRIGHT
             | wasp.EventMask.SWIPE_UPDOWN
-        )
-
-    def swipe(self, event):
-        if event[0] == wasp.EventType.LEFT:
-            if self.letter == "":
-                if self.text[-1] == "" and len(self.text) > 1:
-                    self.text.pop(-1)
-                else:
-                    self.text[-1] = str(self.text[-1])[:-1]
-            self.letter = ""
-            self.text[-1] = "{}  ".format(
-                self.text[-1]
-            )  # adds space, otherwise the screen will not be erased there
-            self._update()
-            self.text[-1] = str(self.text[-1])[:-2]  # removes space
-        elif event[0] == wasp.EventType.RIGHT:
-            if self.text[-1].endswith(" "):
-                self.text.append("")
-                self._draw()
-            else:
-                self._add_letter(" ")
-        else:
-            if len(self.letter) < _MAXINPUT:
-                self.letter += "-" if event[0] == wasp.EventType.UP else "."
-                self._update()
-
-    def touch(self, event):
-        self._add_letter(self._lookup(self.letter))
-
-    def _add_letter(self, addition):
-        merged = self.text[-1] + addition
-        # Check if the new text overflows the screen and add a new line if that's the case
-        split = wasp.watch.drawable.wrap(merged, _WIDTH)
-        if len(split) > 2:
-            self.text.append(self.text[-1][split[1] : split[2]] + addition)
-            self.text[-2] = self.text[-2][split[0] : split[1]]
-            if len(self.text) > _MAXLINES:
-                self.text.pop(0)
-            # Ideally a full refresh should be done only when we exceed
-            # _MAXLINES, but this should be fast enough
-            self._draw()
-        else:
-            self.text[-1] = merged
-        self.letter = ""
-        self._update()
-
-    def _draw(self):
-        """Draw the display from scratch"""
-        draw = wasp.watch.drawable
-        draw.fill()
-        i = 0
-        for line in self.text:
-            draw.string(line, 0, _LINEH * i)
-            i += 1
-        self._update()
-
-    def _update(self):
-        """Update the dynamic parts of the application display, specifically the
-        input line and last line of the text.
-        The full text area is updated in _draw() instead."""
-        draw = wasp.watch.drawable
-        draw.string(self.text[-1], 0, _LINEH * (len(self.text) - 1))
-        guess = self._lookup(self.letter)
-        draw.string(
-            "{} {}".format(self.letter, guess),
-            0,
-            _HEIGHT - _FONTH,
-            width=_WIDTH,
         )
