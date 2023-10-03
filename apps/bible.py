@@ -148,7 +148,7 @@ class BibleApp:
             while length:
                 block = min(length, block_size)
                 length -= block
-                yield file.read(block)
+                yield f.read(block)
 
     def get_chapters(self, file_name):
         with open("/flash/bible/KJV/" + file_name) as f:
