@@ -141,11 +141,14 @@ class BibleApp:
 
         return index
 
-    def get_text(self, file_name, chapter):
+    def get_text(self, file_name, chapter, block_size):
         with open("/flash/bible/KJV/" + file_name) as f:
-            location, length = self.read_header(file)[chapter - 1]
-            file.seek(location)
-            return file.read(length)
+            location, length = self.read_header(f)[chapter - 1]
+            f.seek(location)
+            while length:
+                block = min(length, block_size)
+                length -= block
+                yield file.read(block)
 
     def get_chapters(self, file_name):
         with open("/flash/bible/KJV/" + file_name) as f:
