@@ -15,6 +15,7 @@ Text display code is based in part on the Morse app by Francesco Gazzetta.
     :width: 179
 """
 
+import os
 import wasp
 import icons
 import fonts
@@ -40,21 +41,49 @@ class BibleApp():
     NAME = 'Bible'
 
     def __init__(self):
-        try:
-            self.file = open("bible.txt", "r")
 
-            index_line = self.file.readline()
-            self.index = json.loads(index_line)
-            self.offset = len(index_line)
-            self.ready = True
-        except OSError:
-            self.ready = False
+        translation_names = os.listdir("/flash/bible/")
+        self.translations = {}
 
-    @property
-    def books(self):
-        return {book: len(chapters) for book, chapters in self.index.items()}
+        for translation_name in translation_names:
+            try:
+                with open("/flash/bible/" + translation_name + "/index.txt") as index_file:
+                    full_index = [line.strip() for line in index_file]
+            except OSError:
+                continue
+            
+            index = []
 
-    def get_text(self, book, chapter):
+            for file_name in full_index:
+                try:
+                    open("/flash/bible/" + translation_name + "/" + file_name).close()
+                except OSError:
+                    continue
+
+                index.append(file_name)
+
+            self.translations[translation_name] = index
+
+    def read_header(self, file):
+        file.seek(0)
+        magic = file.readline()
+        
+        if not magic == "Wasp-os Bible v1\n":
+            raise ValueError("invalid file")
+
+        index_line = file.readline()
+
+        index = []
+        position = len(magic + index_line)
+
+        for length_str in index_line.strip().split(","):
+            length = int(length_str)
+            index.append((position, length,))
+            position += length
+
+        return index
+
+    def get_text(self, file_name, chapter):
         raw_location, length = self.index[book][chapter - 1]
         location = raw_location + self.offset
         self.file.seek(location)
@@ -64,7 +93,7 @@ class BibleApp():
         draw = wasp.watch.drawable
         draw.fill()
 
-        draw.string("Ready" if self.ready else "Error", 0, 108, width=240)
+        draw.string("Ready", 0, 108, width=240)
 
         wasp.system.request_event(wasp.EventMask.TOUCH |
                                   wasp.EventMask.SWIPE_LEFTRIGHT |
