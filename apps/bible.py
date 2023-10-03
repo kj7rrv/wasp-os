@@ -34,40 +34,31 @@ _FONTH = const(24)
 _FONT = fonts.sans24
 
 # Precomputed for efficiency
-_LINEH = const(30) # int(_FONTH * 1.25)
-_MAXLINES = const(7) # floor(_HEIGHT / _LINEH) - 1 # the "-1" is the input line
+_LINEH = const(30)  # int(_FONTH * 1.25)
+_MAXLINES = const(7)  # floor(_HEIGHT / _LINEH) - 1 # the "-1" is the input line
 
-class BibleApp():
-    NAME = 'Bible'
+
+class BibleApp:
+    NAME = "Bible"
 
     def __init__(self):
+        with open("/flash/bible/KJV/index.txt") as index_file:
+            full_index = [line.strip() for line in index_file.readlines()]
 
-        translation_names = os.listdir("/flash/bible/")
-        self.translations = {}
+        self.index = []
 
-        for translation_name in translation_names:
+        for file_name in full_index:
             try:
-                with open("/flash/bible/" + translation_name + "/index.txt") as index_file:
-                    full_index = [line.strip() for line in index_file]
+                open("/flash/bible/KJV/" + file_name).close()
             except OSError:
                 continue
-            
-            index = []
 
-            for file_name in full_index:
-                try:
-                    open("/flash/bible/" + translation_name + "/" + file_name).close()
-                except OSError:
-                    continue
-
-                index.append(file_name)
-
-            self.translations[translation_name] = index
+            self.index.append(file_name)
 
     def read_header(self, file):
         file.seek(0)
         magic = file.readline()
-        
+
         if not magic == "Wasp-os Bible v1\n":
             raise ValueError("invalid file")
 
@@ -78,16 +69,32 @@ class BibleApp():
 
         for length_str in index_line.strip().split(","):
             length = int(length_str)
-            index.append((position, length,))
+            index.append(
+                (
+                    position,
+                    length,
+                )
+            )
             position += length
 
         return index
 
+    @property
+    def books(self):
+        return {
+            file_name: file_name.split("_", 1)[1].replace("_", " ")
+            for file_name in self.index
+        }
+
     def get_text(self, file_name, chapter):
-        raw_location, length = self.index[book][chapter - 1]
-        location = raw_location + self.offset
-        self.file.seek(location)
-        return self.file.read(length)
+        with open("/flash/bible/KJV/" + file_name) as f:
+            location, length = read_header(file)[chapter - 1]
+            file.seek(location)
+            return file.read(length)
+
+    def get_chapters(self, file_name):
+        with open("/flash/bible/KJV/" + file_name) as f:
+            return len(read_header(file))
 
     def foreground(self):
         draw = wasp.watch.drawable
@@ -95,9 +102,11 @@ class BibleApp():
 
         draw.string("Ready", 0, 108, width=240)
 
-        wasp.system.request_event(wasp.EventMask.TOUCH |
-                                  wasp.EventMask.SWIPE_LEFTRIGHT |
-                                  wasp.EventMask.SWIPE_UPDOWN)
+        wasp.system.request_event(
+            wasp.EventMask.TOUCH
+            | wasp.EventMask.SWIPE_LEFTRIGHT
+            | wasp.EventMask.SWIPE_UPDOWN
+        )
 
     def swipe(self, event):
         if event[0] == wasp.EventType.LEFT:
@@ -107,7 +116,9 @@ class BibleApp():
                 else:
                     self.text[-1] = str(self.text[-1])[:-1]
             self.letter = ""
-            self.text[-1] = "{}  ".format(self.text[-1])  # adds space, otherwise the screen will not be erased there
+            self.text[-1] = "{}  ".format(
+                self.text[-1]
+            )  # adds space, otherwise the screen will not be erased there
             self._update()
             self.text[-1] = str(self.text[-1])[:-2]  # removes space
         elif event[0] == wasp.EventType.RIGHT:
@@ -129,8 +140,8 @@ class BibleApp():
         # Check if the new text overflows the screen and add a new line if that's the case
         split = wasp.watch.drawable.wrap(merged, _WIDTH)
         if len(split) > 2:
-            self.text.append(self.text[-1][split[1]:split[2]] + addition)
-            self.text[-2] = self.text[-2][split[0]:split[1]]
+            self.text.append(self.text[-1][split[1] : split[2]] + addition)
+            self.text[-2] = self.text[-2][split[0] : split[1]]
             if len(self.text) > _MAXLINES:
                 self.text.pop(0)
             # Ideally a full refresh should be done only when we exceed
@@ -156,7 +167,11 @@ class BibleApp():
         input line and last line of the text.
         The full text area is updated in _draw() instead."""
         draw = wasp.watch.drawable
-        draw.string(self.text[-1], 0, _LINEH*(len(self.text)-1))
+        draw.string(self.text[-1], 0, _LINEH * (len(self.text) - 1))
         guess = self._lookup(self.letter)
-        draw.string("{} {}".format(self.letter, guess), 0, _HEIGHT - _FONTH, width=_WIDTH)
-
+        draw.string(
+            "{} {}".format(self.letter, guess),
+            0,
+            _HEIGHT - _FONTH,
+            width=_WIDTH,
+        )
