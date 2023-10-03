@@ -42,18 +42,18 @@ class BibleApp:
     NAME = "Bible"
 
     def __init__(self):
-        with open("/flash/bible/KJV/index.txt") as index_file:
-            full_index = [line.strip() for line in index_file.readlines()]
-
         self.index = []
 
-        for file_name in full_index:
-            try:
-                open("/flash/bible/KJV/" + file_name).close()
-            except OSError:
-                continue
+        with open("/flash/bible/KJV/index.txt") as index_file:
+            for line in index_file.readlines():
+                file_name = line.strip()
 
-            self.index.append(file_name)
+                try:
+                    open("/flash/bible/KJV/" + file_name).close()
+                except OSError:
+                    continue
+
+                self.index.append(file_name)
 
     def read_header(self, file):
         file.seek(0)
