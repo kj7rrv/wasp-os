@@ -58,10 +58,6 @@ class BibleApp:
     def read_header(self, file):
         file.seek(0)
         magic = file.readline()
-
-        if not magic == "Wasp-os Bible v1\n":
-            raise ValueError("invalid file")
-
         index_line = file.readline()
 
         index = []
@@ -79,22 +75,16 @@ class BibleApp:
 
         return index
 
-    @property
-    def books(self):
-        return {
-            file_name: file_name.split("_", 1)[1].replace("_", " ")
-            for file_name in self.index
-        }
-
     def get_text(self, file_name, chapter):
         with open("/flash/bible/KJV/" + file_name) as f:
-            location, length = read_header(file)[chapter - 1]
+            location, length = self.read_header(file)[chapter - 1]
             file.seek(location)
             return file.read(length)
 
     def get_chapters(self, file_name):
         with open("/flash/bible/KJV/" + file_name) as f:
-            return len(read_header(file))
+            f.readline()
+            return len(f.readline().split(","))
 
     def foreground(self):
         draw = wasp.watch.drawable
