@@ -42,21 +42,84 @@ class BibleApp:
     NAME = "Bible"
 
     def __init__(self):
-        self.index = []
+        pass
 
-        with open("/flash/bible/KJV/index.txt") as index_file:
-            while True:
-                file_name = index_file.readline().strip()
+    def books(self):
+        for file_name in [
+            "01_Genesis.txt",
+            "02_Exodus.txt",
+            "03_Leviticus.txt",
+            "04_Numbers.txt",
+            "05_Deuteronomy.txt",
+            "06_Joshua.txt",
+            "07_Judges.txt",
+            "08_Ruth.txt",
+            "09_1_Samuel.txt",
+            "10_2_Samuel.txt",
+            "11_1_Kings.txt",
+            "12_2_Kings.txt",
+            "13_1_Chronicles.txt",
+            "14_2_Chronicles.txt",
+            "15_Ezra.txt",
+            "16_Nehemiah.txt",
+            "17_Esther.txt",
+            "18_Job.txt",
+            "19_Psalms.txt",
+            "20_Proverbs.txt",
+            "21_Ecclesiastes.txt",
+            "22_Song_of_Solomon.txt",
+            "23_Isaiah.txt",
+            "24_Jeremiah.txt",
+            "25_Lamentations.txt",
+            "26_Ezekiel.txt",
+            "27_Daniel.txt",
+            "28_Hosea.txt",
+            "29_Joel.txt",
+            "30_Amos.txt",
+            "31_Obadiah.txt",
+            "32_Jonah.txt",
+            "33_Micah.txt",
+            "34_Nahum.txt",
+            "35_Habakkuk.txt",
+            "36_Zephaniah.txt",
+            "37_Haggai.txt",
+            "38_Zechariah.txt",
+            "39_Malachi.txt",
+            "40_Matthew.txt",
+            "41_Mark.txt",
+            "42_Luke.txt",
+            "43_John.txt",
+            "44_Acts.txt",
+            "45_Romans.txt",
+            "46_1_Corinthians.txt",
+            "47_2_Corinthians.txt",
+            "48_Galatians.txt",
+            "49_Ephesians.txt",
+            "50_Philippians.txt",
+            "51_Colossians.txt",
+            "52_1_Thessalonians.txt",
+            "53_2_Thessalonians.txt",
+            "54_1_Timothy.txt",
+            "55_2_Timothy.txt",
+            "56_Titus.txt",
+            "57_Philemon.txt",
+            "58_Hebrews.txt",
+            "59_James.txt",
+            "60_1_Peter.txt",
+            "61_2_Peter.txt",
+            "62_1_John.txt",
+            "63_2_John.txt",
+            "64_3_John.txt",
+            "65_Jude.txt",
+            "66_Revelation.txt",
+        ]:
+            try:
+                open("/flash/bible/KJV/" + file_name).close()
+            except OSError:
+                continue
 
-                if not file_name:
-                    break
+            yield file_name
 
-                try:
-                    open("/flash/bible/KJV/" + file_name).close()
-                except OSError:
-                    continue
-
-                self.index.append(file_name)
 
     def read_header(self, file):
         file.seek(0)
