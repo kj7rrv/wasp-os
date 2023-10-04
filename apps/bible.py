@@ -16,6 +16,7 @@ Text display code is based in part on the Morse app by Francesco Gazzetta.
 """
 
 import os
+import io
 import wasp
 import icons
 import fonts
@@ -36,6 +37,52 @@ _FONT = fonts.sans24
 # Precomputed for efficiency
 _LINEH = const(30)  # int(_FONTH * 1.25)
 _MAXLINES = const(7)  # floor(_HEIGHT / _LINEH) - 1 # the "-1" is the input line
+
+
+class FileSegment(io.StringIO):
+    def __init__(self, file, offset, length):
+        super().__init__()
+        self.file = file
+        self.offset = offset
+        self.length = length
+        self.position = 0
+
+    def read(self, size=-1):
+        if size == -1:
+            remaining_bytes = self.length - self.position
+        else:
+            remaining_bytes = min(size, self.length - self.position)
+
+        self.file.seek(self.offset + self.position)
+        data = self.file.read(remaining_bytes)
+        self.position += len(data)
+
+        return data
+
+    def seek(self, offset, whence=io.SEEK_SET):
+        if whence == io.SEEK_SET:
+            new_position = self.offset + offset
+        elif whence == io.SEEK_CUR:
+            new_position = self.position + offset
+        elif whence == io.SEEK_END:
+            new_position = self.offset + self.length + offset
+        else:
+            raise ValueError("Invalid 'whence' argument")
+
+        if (
+            new_position < self.offset
+            or new_position > self.offset + self.length
+        ):
+            raise ValueError("Seek position is out of range")
+
+        self.position = new_position
+        return new_position
+
+    def tell(self):
+        return self.position
+
+    def close(self):
+        return self.file.close()
 
 
 class BibleApp:
@@ -120,7 +167,6 @@ class BibleApp:
 
             yield file_name
 
-
     def read_header(self, file):
         file.seek(0)
         magic = file.readline()
@@ -141,14 +187,10 @@ class BibleApp:
 
         return index
 
-    def get_text(self, file_name, chapter, block_size):
-        with open("/flash/bible/KJV/" + file_name) as f:
-            location, length = self.read_header(f)[chapter - 1]
-            f.seek(location)
-            while length:
-                block = min(length, block_size)
-                length -= block
-                yield f.read(block)
+    def get_text(self, file_name, chapter):
+        f = open("/flash/bible/KJV/" + file_name)
+        location, length = self.read_header(f)[chapter - 1]
+        return FileSegment(f, location, length)
 
     def get_chapters(self, file_name):
         with open("/flash/bible/KJV/" + file_name) as f:
