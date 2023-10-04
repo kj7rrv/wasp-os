@@ -59,16 +59,7 @@ class FileSegment(io.StringIO):
 
         return data
 
-    def seek(self, offset, whence=io.SEEK_SET):
-        if whence == io.SEEK_SET:
-            new_position = self.offset + offset
-        elif whence == io.SEEK_CUR:
-            new_position = self.position + offset
-        elif whence == io.SEEK_END:
-            new_position = self.offset + self.length + offset
-        else:
-            raise ValueError("Invalid 'whence' argument")
-
+    def seek(self, offset):
         if (
             new_position < self.offset
             or new_position > self.offset + self.length
