@@ -113,26 +113,23 @@ class FileSegment(io.StringIO):
             remaining_bytes = min(size, self.length - self.position)
 
         self.file.seek(self.offset + self.position)
-        data = self.file.read(remaining_bytes)
+        data = self.file.read(max(remaining_bytes, 0))
         self.position += len(data)
 
         return data
 
-    def seek(self, offset):
-        if (
-            new_position < self.offset
-            or new_position > self.offset + self.length
-        ):
-            raise ValueError("Seek position is out of range")
+    def seek(self, position):
+        if position < 0:
+            raise ValueError("negative seek position")
 
-        self.position = new_position
-        return new_position
+        self.position = position
+        return position
 
     def tell(self):
         return self.position
 
     def close(self):
-        return self.file.close()
+        self.file.close()
 
 
 class BibleApp:
